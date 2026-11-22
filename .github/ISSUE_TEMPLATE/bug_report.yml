@@ -1,0 +1,91 @@
+name: 🐛 Bug Report
+description: File a bug report to help identify and fix issues in Identity Service
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please provide as much relevant context as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: Select the primary module where the issue occurs.
+      options:
+        - API / Controllers
+        - Authentication / JWT Handling
+        - External Identity Provider (Firebase / LocalStub)
+        - Infrastructure / PostgreSQL
+        - Docker / Orchestration
+        - CI / CD Pipelines
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this behavior?
+      placeholder: |
+        1. Send request POST /api/v1/auth/login with ...
+        2. Set header ...
+        3. Observe error response ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened (include error status codes or payload).
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error Output
+      description: Paste any relevant terminal logs, stack traces, or response payloads.
+      render: shell
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did this issue occur?
+      options:
+        - Local Development (Docker Compose)
+        - Local Development (Bare Metal / dotnet run)
+        - CI / GitHub Actions
+        - Staging / Production
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Confirmations
+      options:
+        - label: I have verified this is not a duplicate of an existing issue.
+          required: true
+        - label: I have checked that no sensitive secrets or credentials are included in the logs.
+          required: true
