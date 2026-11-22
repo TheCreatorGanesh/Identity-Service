@@ -161,5 +161,12 @@ if (process.env.GITHUB_STEP_SUMMARY) {
   }
 }
 
+// Also write to test-summary.md for PR comment integration
+try {
+  fs.writeFileSync('test-summary.md', output, 'utf8');
+} catch (err) {
+  console.error('Failed to write to test-summary.md:', err);
+}
+
 // Always print to console
 console.log(output);
