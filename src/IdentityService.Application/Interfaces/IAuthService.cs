@@ -9,20 +9,20 @@ namespace IdentityService.Application.Interfaces;
 public interface IAuthService
 {
     Task<(bool Success, LoginResponse? Data, AuthFailureReason FailureReason, string? ErrorDetail)> LoginAsync(
-        LoginRequest request, 
-        string? ipAddress, 
+        LoginRequest request,
+        string? ipAddress,
         CancellationToken cancellationToken = default);
 
     Task<ForgotPasswordResponse> ForgotPasswordAsync(
-        ForgotPasswordRequest request, 
+        ForgotPasswordRequest request,
         CancellationToken cancellationToken = default);
 
     Task<(bool Success, ResetPasswordResponse? Data, AuthFailureReason FailureReason, string? ErrorDetail)> ResetPasswordAsync(
-        ResetPasswordRequest request, 
+        ResetPasswordRequest request,
         CancellationToken cancellationToken = default);
 
     Task<(bool Success, ChangePasswordResponse? Data, AuthFailureReason FailureReason, string? ErrorDetail)> ChangePasswordAsync(
-        string email, 
-        ChangePasswordRequest request, 
+        string email,
+        ChangePasswordRequest request,
         CancellationToken cancellationToken = default);
 }

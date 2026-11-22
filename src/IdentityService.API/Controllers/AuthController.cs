@@ -125,8 +125,8 @@ public sealed class AuthController(
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
     {
-        var email = User.FindFirstValue(ClaimTypes.Email) 
-                 ?? User.FindFirstValue("email") 
+        var email = User.FindFirstValue(ClaimTypes.Email)
+                 ?? User.FindFirstValue("email")
                  ?? User.Identity?.Name;
 
         if (string.IsNullOrWhiteSpace(email))
