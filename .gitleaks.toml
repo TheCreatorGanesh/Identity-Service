@@ -1,0 +1,10 @@
+[extend]
+# Uses default Gitleaks rule configuration
+
+[allowlist]
+description = "Allowlist for safe local development placeholders and mock accounts"
+paths = [
+  '''docker/\.env\.example$''',
+  '''tests/.*''',
+  '''src/IdentityService\.Infrastructure/IdentityProviders/LocalStub/.*'''
+]
