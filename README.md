@@ -13,7 +13,7 @@ graph TD
     Client["Client / UI / Consumer"]
 
     subgraph API [IdentityService.API]
-        Controller["AuthController\n(api/auth/* & api/v1/auth/*)"]
+        Controller["AuthController\n(api/v1/auth/*)"]
         OpenApi["OpenAPI + Scalar UI (DeepSpace)"]
         Health["/health Endpoint"]
     end
@@ -78,20 +78,20 @@ graph TD
    - Queries the PostgreSQL `staff` table by lowercase email.
    - Mints ASP.NET Core JWTs containing standard and application claims: `sub`, `email`, `name`, `employeeId`, `ClaimTypes.Role`, and `"userrole"`.
 
-5. **Dual-Route Compatibility**:
-   - Supports both `/api/auth/*` and `/api/v1/auth/*` routes for seamless integration with Angular and mobile clients.
+5. **API Versioning**:
+   - Enforces `/api/v1/auth/*` versioned routes across all endpoints.
 
 ---
 
 ## 🛠️ Endpoints
 
-| Route                       | Method | Authorization | Description                                                    |
-| :-------------------------- | :----- | :------------ | :------------------------------------------------------------- |
-| `/api/auth/login`           | `POST` | Public        | Authenticates credentials, verifies DB provisioning, mints JWT |
-| `/api/auth/forgot-password` | `POST` | Public        | Dispatches reset email; always returns generic 200 OK          |
-| `/api/auth/reset-password`  | `POST` | Public        | Confirms reset using resetCode / out-of-band token             |
-| `/api/auth/change-password` | `POST` | `[Authorize]` | Updates password; reads email strictly from JWT claims         |
-| `/api/auth/logout`          | `POST` | `[Authorize]` | Invalidate / discard session                                   |
+| Route                          | Method | Authorization | Description                                                    |
+| :----------------------------- | :----- | :------------ | :------------------------------------------------------------- |
+| `/api/v1/auth/login`           | `POST` | Public        | Authenticates credentials, verifies DB provisioning, mints JWT |
+| `/api/v1/auth/forgot-password` | `POST` | Public        | Dispatches reset email; always returns generic 200 OK          |
+| `/api/v1/auth/reset-password`  | `POST` | Public        | Confirms reset using resetCode / out-of-band token             |
+| `/api/v1/auth/change-password` | `POST` | `[Authorize]` | Updates password; reads email strictly from JWT claims         |
+| `/api/v1/auth/logout`          | `POST` | `[Authorize]` | Invalidate / discard session                                   |
 | `/health`                   | `GET`  | Public        | Health check verifying DB and Identity Provider status         |
 
 ---

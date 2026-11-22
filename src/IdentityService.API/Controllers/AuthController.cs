@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using IdentityService.Application.Interfaces;
@@ -11,8 +12,8 @@ namespace IdentityService.API.Controllers;
 /// Controller handling provider-agnostic user authentication, password resets, and session management.
 /// </summary>
 [ApiController]
-[Route("api/auth")]
-[Route("api/v1/auth")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/auth")]
 [Produces("application/json")]
 public sealed class AuthController(
     IAuthService authService,
