@@ -1,0 +1,53 @@
+name: ci-unit-tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore IdentityService.slnx
+
+      - name: Build solution
+        run: dotnet build IdentityService.slnx --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: >
+          dotnet test tests/IdentityService.UnitTests/IdentityService.UnitTests.csproj
+          --configuration Release
+          --no-build
+          --verbosity normal
+          --settings coverlet.runsettings
+          --collect:"XPlat Code Coverage"
+          --logger "trx;LogFileName=unit-tests.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: |
+            tests/IdentityService.UnitTests/TestResults/**/*.trx
+            tests/IdentityService.UnitTests/TestResults/**/coverage.cobertura.xml
+          if-no-files-found: ignore
+          retention-days: 7
