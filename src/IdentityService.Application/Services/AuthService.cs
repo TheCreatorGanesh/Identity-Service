@@ -31,8 +31,8 @@ public sealed class AuthService : IAuthService
     }
 
     public async Task<(bool Success, LoginResponse? Data, AuthFailureReason FailureReason, string? ErrorDetail)> LoginAsync(
-        LoginRequest request, 
-        string? ipAddress, 
+        LoginRequest request,
+        string? ipAddress,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Processing authentication request for: {Email}", request.Email);
@@ -87,7 +87,7 @@ public sealed class AuthService : IAuthService
     }
 
     public async Task<ForgotPasswordResponse> ForgotPasswordAsync(
-        ForgotPasswordRequest request, 
+        ForgotPasswordRequest request,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Initiating forgot-password dispatch for {Email}", request.Email);
@@ -109,7 +109,7 @@ public sealed class AuthService : IAuthService
     }
 
     public async Task<(bool Success, ResetPasswordResponse? Data, AuthFailureReason FailureReason, string? ErrorDetail)> ResetPasswordAsync(
-        ResetPasswordRequest request, 
+        ResetPasswordRequest request,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Processing reset password confirmation");
@@ -140,8 +140,8 @@ public sealed class AuthService : IAuthService
     }
 
     public async Task<(bool Success, ChangePasswordResponse? Data, AuthFailureReason FailureReason, string? ErrorDetail)> ChangePasswordAsync(
-        string email, 
-        ChangePasswordRequest request, 
+        string email,
+        ChangePasswordRequest request,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Processing authenticated password change for {Email}", email);
