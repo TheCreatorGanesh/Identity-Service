@@ -13,7 +13,7 @@ public sealed class LoginRequest
     /// <summary>
     /// User email address or staff identifier.
     /// </summary>
-    /// <example>test@rest.com</example>
+    /// <example>user@example.com</example>
     [Required]
     public required string Email
     {
@@ -40,7 +40,7 @@ public sealed class LoginRequest
     /// <summary>
     /// Account password.
     /// </summary>
-    /// <example>Password123!</example>
+    /// <example>P@ssw0rd!</example>
     [Required]
     public required string Password { get; set; }
 
@@ -101,7 +101,7 @@ public sealed class ForgotPasswordRequest
     /// <summary>
     /// The user's registered email address.
     /// </summary>
-    /// <example>test@rest.com</example>
+    /// <example>user@example.com</example>
     [Required]
     public required string Email
     {

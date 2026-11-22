@@ -49,6 +49,7 @@ wwwroot/dist/
 # Environment and local configuration
 .env
 .env.*
+!.env.example
 appsettings.*.json
 !appsettings.json
 

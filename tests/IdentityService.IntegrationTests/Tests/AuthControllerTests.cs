@@ -15,13 +15,24 @@ public sealed class AuthControllerTests : IClassFixture<RunningApiFixture>
         _fixture = fixture;
     }
 
-    [Fact(Skip = "Requires live running Auth service on port 8081 (Docker or local)")]
+    [Fact]
     public async Task Login_WithValidCredentials_ReturnsOk()
     {
+        if (!_fixture.IsServiceAvailable)
+        {
+            // Requires live running Auth service on port 8081 (Docker or local)
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_fixture.TestEmail) || string.IsNullOrWhiteSpace(_fixture.TestPassword))
+        {
+            throw new InvalidOperationException("Test_Email and Test_Password must be configured in the .env file.");
+        }
+
         var request = new LoginRequest
         {
-            Email = "test@rest.com",
-            Password = "Password123!"
+            Email = _fixture.TestEmail,
+            Password = _fixture.TestPassword
         };
 
         var response = await _fixture.AuthClient.LoginAsync(request);
@@ -30,12 +41,23 @@ public sealed class AuthControllerTests : IClassFixture<RunningApiFixture>
         response.Content!.Token.Should().NotBeNullOrWhiteSpace();
     }
 
-    [Fact(Skip = "Requires live running Auth service on port 8081 (Docker or local)")]
+    [Fact]
     public async Task ForgotPassword_ReturnsOk()
     {
+        if (!_fixture.IsServiceAvailable)
+        {
+            // Requires live running Auth service on port 8081 (Docker or local)
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_fixture.TestEmail))
+        {
+            throw new InvalidOperationException("Test_Email must be configured in the .env file.");
+        }
+
         var request = new ForgotPasswordRequest
         {
-            Email = "test@rest.com"
+            Email = _fixture.TestEmail
         };
 
         var response = await _fixture.AuthClient.ForgotPasswordAsync(request);
