@@ -41,6 +41,10 @@ jobs:
           --collect:"XPlat Code Coverage"
           --logger "trx;LogFileName=unit-tests.trx"
 
+      - name: Generate Test & Coverage Summary
+        if: always()
+        run: node .github/scripts/generate-test-summary.js tests/IdentityService.UnitTests/TestResults
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
