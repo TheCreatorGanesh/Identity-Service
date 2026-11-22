@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:c0790639332692a0d56cdd81ed581cfd24
 WORKDIR /app
 
 # Copy project files for layer-cached restore
+COPY Directory.Build.props ./
 COPY src/IdentityService.Core/IdentityService.Core.csproj ./src/IdentityService.Core/
 COPY src/IdentityService.Application/IdentityService.Application.csproj ./src/IdentityService.Application/
 COPY src/IdentityService.Infrastructure/IdentityService.Infrastructure.csproj ./src/IdentityService.Infrastructure/

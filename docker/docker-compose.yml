@@ -1,7 +1,10 @@
 services:
   # PostgreSQL Database (Shares the existing cluster or runs its own)
   identity-service-postgres:
-    image: postgres:16-alpine
+    build:
+      context: ..
+      dockerfile: infra/database/Dockerfile
+    image: thecreatorganesh/identity-service:postgres
     container_name: identity-service-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
