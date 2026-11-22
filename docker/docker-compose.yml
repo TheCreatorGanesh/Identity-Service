@@ -1,0 +1,53 @@
+services:
+  # PostgreSQL Database (Shares the existing cluster or runs its own)
+  identity-service-postgres:
+    image: postgres:16-alpine
+    container_name: identity-service-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - identity-service-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - identity-service-network
+    restart: unless-stopped
+
+  # Identity Service API
+  identity-service-auth:
+    build:
+      context: ..
+      dockerfile: src/IdentityService.API/Dockerfile
+    container_name: identity-service-auth
+    image: thecreatorganesh/identity-service:api-auth
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__PostgreSQL: ${ConnectionStrings__PostgreSQL_Docker}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+      IdentityProvider__ActiveProvider: ${IdentityProvider__ActiveProvider}
+      Firebase__ProjectId: ${Firebase__ProjectId}
+      Firebase__ApiKey: ${Firebase__ApiKey}
+      Firebase__BypassSignatureValidation: ${Firebase__BypassSignatureValidation}
+    ports:
+      - "${AUTH_PORT}:8080"
+    depends_on:
+      identity-service-postgres:
+        condition: service_healthy
+    networks:
+      - identity-service-network
+    restart: unless-stopped
+
+volumes:
+  identity-service-data:
+    driver: local
+
+networks:
+  identity-service-network:
+    driver: bridge

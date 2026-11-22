@@ -1,0 +1,29 @@
+services:
+  # PostgreSQL Database (Local dev support)
+  identity-service-postgres:
+    image: postgres:16-alpine
+    container_name: identity-service-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-IdentityManagement}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - identity-service-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - identity-service-network
+    restart: unless-stopped
+
+volumes:
+  identity-service-data:
+    driver: local
+
+networks:
+  identity-service-network:
+    driver: bridge
