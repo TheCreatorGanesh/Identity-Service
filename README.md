@@ -12,32 +12,32 @@ The Identity Service isolates all external identity provider communications behi
 graph TD
     Client["Client / UI / Consumer"]
 
-    subgraph API [IdentityService.API]
-        Controller["AuthController\n(api/v1/auth/*)"]
+    subgraph API ["IdentityService.API"]
+        Controller["AuthController<br/>(api/v1/auth/*)"]
         OpenApi["OpenAPI + Scalar UI (DeepSpace)"]
         Health["/health Endpoint"]
     end
 
-    subgraph App [IdentityService.Application]
-        AuthSvc["IAuthService / AuthService\n(Business Orchestration)"]
-        JwtGen["IJwtTokenGenerator\n(ASP.NET Core JWT Minting)"]
+    subgraph App ["IdentityService.Application"]
+        AuthSvc["IAuthService / AuthService<br/>(Business Orchestration)"]
+        JwtGen["IJwtTokenGenerator<br/>(ASP.NET Core JWT Minting)"]
     end
 
-    subgraph Core [IdentityService.Core]
+    subgraph Core ["IdentityService.Core"]
         IIdP["«interface» IExternalIdentityProvider"]
-        FirebaseIdP["FirebaseIdentityProvider\n(Typed HttpClient + REST API)"]
-        StubIdP["LocalStubIdentityProvider\n(In-Memory Testing)"]
+        FirebaseIdP["FirebaseIdentityProvider<br/>(Typed HttpClient + REST API)"]
+        StubIdP["LocalStubIdentityProvider<br/>(In-Memory Testing)"]
         IUserRepo["«interface» IIdentityUserRepository"]
         DTOs["DTOs & Enums"]
     end
 
-    subgraph Infra [IdentityService.Infrastructure (DB & Persistence Only)]
-        PGRepo["PostgresIdentityUserRepository\n(Queries staff table by Email)"]
+    subgraph Infra ["IdentityService.Infrastructure (DB & Persistence Only)"]
+        PGRepo["PostgresIdentityUserRepository<br/>(Queries staff table by Email)"]
     end
 
-    subgraph External [External Services]
-        FirebaseAuth["Firebase Auth REST API\n(Google Identity Toolkit v1)"]
-        Postgres[(PostgreSQL DB\nstaff table)]
+    subgraph External ["External Services"]
+        FirebaseAuth["Firebase Auth REST API<br/>(Google Identity Toolkit v1)"]
+        Postgres[("PostgreSQL DB<br/>staff table")]
     end
 
     Client -->|HTTP POST| Controller
