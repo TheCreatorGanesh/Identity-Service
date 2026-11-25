@@ -6,7 +6,6 @@ on:
   push:
     branches: [main]
   schedule:
-    # Run weekly scan every Monday at 04:00 UTC
     - cron: '0 4 * * 1'
   workflow_dispatch:
 
@@ -15,12 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOTNET_VERSION: ${{ vars.DOTNET_VERSION || '10.0.x' }}
-  SOLUTION_FILE: ${{ vars.SOLUTION_FILE || 'IdentityService.slnx' }}
-  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
-  CODEQL_LANGUAGES: ${{ vars.CODEQL_LANGUAGES || 'csharp' }}
-  CODEQL_QUERIES: ${{ vars.CODEQL_QUERIES || 'security-extended' }}
-  CODEQL_CATEGORY: ${{ vars.CODEQL_CATEGORY || '/language:csharp' }}
+  DOTNET_VERSION: ${{ vars.DOTNET_VERSION }}
+  SOLUTION_FILE: ${{ vars.SOLUTION_FILE }}
+  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION }}
+  CODEQL_LANGUAGES: ${{ vars.CODEQL_LANGUAGES }}
+  CODEQL_QUERIES: ${{ vars.CODEQL_QUERIES }}
+  CODEQL_CATEGORY: ${{ vars.CODEQL_CATEGORY }}
 
 permissions:
   contents: read
@@ -29,7 +28,7 @@ permissions:
 jobs:
   secret-scan:
     name: Secret Scanning (Gitleaks)
-    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_OS }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,7 +42,7 @@ jobs:
 
   nuget-vulnerability-audit:
     name: NuGet Dependency Audit
-    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_OS }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -75,7 +74,7 @@ jobs:
 
   codeql-analysis:
     name: CodeQL SAST Analysis
-    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_OS }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

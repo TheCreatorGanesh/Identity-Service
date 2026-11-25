@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  RELEASE_DRAFTER_CONFIG: ${{ vars.RELEASE_DRAFTER_CONFIG || 'release-drafter.yml' }}
+  RELEASE_DRAFTER_CONFIG: ${{ vars.RELEASE_DRAFTER_CONFIG }}
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ permissions:
 jobs:
   update_release_draft:
     name: Update Draft Release
-    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_OS }}
     steps:
       - uses: release-drafter/release-drafter@v6
         with:

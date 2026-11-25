@@ -12,10 +12,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOTNET_VERSION: ${{ vars.DOTNET_VERSION || '10.0.x' }}
-  SOLUTION_FILE: ${{ vars.SOLUTION_FILE || 'IdentityService.slnx' }}
-  FORMAT_SEVERITY: ${{ vars.FORMAT_SEVERITY || 'error' }}
-  FORMAT_VERBOSITY: ${{ vars.FORMAT_VERBOSITY || 'normal' }}
+  DOTNET_VERSION: ${{ vars.DOTNET_VERSION }}
+  SOLUTION_FILE: ${{ vars.SOLUTION_FILE }}
+  FORMAT_SEVERITY: ${{ vars.FORMAT_SEVERITY }}
+  FORMAT_VERBOSITY: ${{ vars.FORMAT_VERBOSITY }}
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ permissions:
 jobs:
   format-check:
     name: Code Formatting
-    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_OS }}
 
     steps:
       - name: Checkout repository

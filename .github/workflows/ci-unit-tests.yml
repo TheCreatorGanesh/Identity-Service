@@ -12,19 +12,19 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOTNET_VERSION: ${{ vars.DOTNET_VERSION || '10.0.x' }}
-  SOLUTION_FILE: ${{ vars.SOLUTION_FILE || 'IdentityService.slnx' }}
-  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
-  UNIT_TEST_PROJECT: ${{ vars.UNIT_TEST_PROJECT || 'tests/IdentityService.UnitTests/IdentityService.UnitTests.csproj' }}
-  TEST_RESULTS_DIR: ${{ vars.TEST_RESULTS_DIR || 'tests/IdentityService.UnitTests/TestResults' }}
-  COVERLET_SETTINGS: ${{ vars.COVERLET_SETTINGS || 'coverlet.runsettings' }}
-  TRX_LOG_FILE: ${{ vars.TRX_LOG_FILE || 'unit-tests.trx' }}
-  COVERAGE_FILE_NAME: ${{ vars.COVERAGE_FILE_NAME || 'coverage.cobertura.xml' }}
-  SUMMARY_SCRIPT: ${{ vars.SUMMARY_SCRIPT || '.github/scripts/generate-test-summary.js' }}
-  SUMMARY_OUTPUT_FILE: ${{ vars.SUMMARY_OUTPUT_FILE || 'test-summary.md' }}
-  PR_COMMENT_TAG: ${{ vars.PR_COMMENT_TAG || '<!-- unit-test-coverage-summary -->' }}
-  ARTIFACT_NAME: ${{ vars.UNIT_TEST_ARTIFACT_NAME || 'unit-test-results' }}
-  ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS || 7 }}
+  DOTNET_VERSION: ${{ vars.DOTNET_VERSION }}
+  SOLUTION_FILE: ${{ vars.SOLUTION_FILE }}
+  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION }}
+  UNIT_TEST_PROJECT: ${{ vars.UNIT_TEST_PROJECT }}
+  TEST_RESULTS_DIR: ${{ vars.TEST_RESULTS_DIR }}
+  COVERLET_SETTINGS: ${{ vars.COVERLET_SETTINGS }}
+  TRX_LOG_FILE: ${{ vars.TRX_LOG_FILE }}
+  COVERAGE_FILE_NAME: ${{ vars.COVERAGE_FILE_NAME }}
+  SUMMARY_SCRIPT: ${{ vars.SUMMARY_SCRIPT }}
+  SUMMARY_OUTPUT_FILE: ${{ vars.SUMMARY_OUTPUT_FILE }}
+  PR_COMMENT_TAG: ${{ vars.PR_COMMENT_TAG }}
+  ARTIFACT_NAME: ${{ vars.UNIT_TEST_ARTIFACT_NAME }}
+  ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS }}
 
 permissions:
   contents: read
@@ -33,7 +33,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build & Unit Tests
-    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_OS }}
 
     steps:
       - name: Checkout repository
