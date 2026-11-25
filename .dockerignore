@@ -1,0 +1,10 @@
+**/.git
+**/.bin
+**/.obj
+**/bin
+**/obj
+**/TestResults
+**/.idea
+**/.vscode
+**/*.user
+docker/
