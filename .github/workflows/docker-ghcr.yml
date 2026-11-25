@@ -63,7 +63,7 @@ jobs:
           file: src/IdentityService.API/Dockerfile
           load: true
           push: false
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
+          tags: identity-service:pr-${{ github.event.pull_request.number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -71,7 +71,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
+          image-ref: identity-service:pr-${{ github.event.pull_request.number }}
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
