@@ -1,0 +1,95 @@
+name: security-and-compliance
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  schedule:
+    # Run weekly scan every Monday at 04:00 UTC
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  secret-scan:
+    name: Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Secret Scanner
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  nuget-vulnerability-audit:
+    name: NuGet Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore IdentityService.slnx
+
+      - name: Check for Known Vulnerabilities (CVEs)
+        run: |
+          echo "### 🛡️ NuGet Dependency Vulnerability Check" >> "$GITHUB_STEP_SUMMARY"
+          AUDIT_OUTPUT=$(dotnet list IdentityService.slnx package --vulnerable --include-transitive)
+          echo "$AUDIT_OUTPUT"
+          
+          if echo "$AUDIT_OUTPUT" | grep -i "has the following vulnerable packages"; then
+            echo "❌ Vulnerable NuGet packages detected!"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$AUDIT_OUTPUT" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          else
+            echo "✅ No known vulnerable NuGet packages found across all projects."
+            echo "✅ **All projects verified**: No known CVE vulnerabilities found in direct or transitive dependencies." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  codeql-analysis:
+    name: CodeQL SAST Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          queries: security-extended
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore IdentityService.slnx
+
+      - name: Build solution for CodeQL analysis
+        run: dotnet build IdentityService.slnx --configuration Release --no-restore
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:csharp"

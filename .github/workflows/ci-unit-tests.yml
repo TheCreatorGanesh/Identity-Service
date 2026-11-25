@@ -11,6 +11,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build-and-test:
     name: Build & Unit Tests
@@ -40,6 +44,33 @@ jobs:
           --settings coverlet.runsettings
           --collect:"XPlat Code Coverage"
           --logger "trx;LogFileName=unit-tests.trx"
+
+      - name: Generate Test & Coverage Summary
+        if: always()
+        run: node .github/scripts/generate-test-summary.js tests/IdentityService.UnitTests/TestResults
+
+      - name: Publish PR Comment
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -f test-summary.md ]; then
+            COMMENT_TAG="<!-- unit-test-coverage-summary -->"
+            BODY="${COMMENT_TAG}"$'\n\n'"$(cat test-summary.md)"
+            
+            EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+              --jq ".[] | select(.body | contains(\"${COMMENT_TAG}\")) | .id" | head -n 1)
+            
+            if [ -n "$EXISTING_COMMENT_ID" ]; then
+              echo "Updating existing PR comment: $EXISTING_COMMENT_ID"
+              gh api --method PATCH "repos/${{ github.repository }}/issues/comments/${EXISTING_COMMENT_ID}" \
+                -f body="$BODY"
+            else
+              echo "Creating new PR comment"
+              gh pr comment "${PR_NUMBER}" --body "$BODY"
+            fi
+          fi
 
       - name: Upload test results
         if: always()
