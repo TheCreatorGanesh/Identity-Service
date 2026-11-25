@@ -12,7 +12,7 @@ namespace IdentityService.UnitTests.Services;
 public sealed class JwtTokenGeneratorTests
 {
     [Fact]
-    public void GenerateToken_MintsRequiredClaimsIncludingUserRole()
+    public void GenerateToken_MintsRequiredClaims()
     {
         var options = Options.Create(new JwtOptions
         {
@@ -25,14 +25,10 @@ public sealed class JwtTokenGeneratorTests
 
         var user = new IdentityUserRecord(
             AggregateId: "staff-aggregate-99",
-            EmployeeId: "EDU-2024-0082",
             Username: "erodriguez_staff",
             Name: "Dr. Elena Rodriguez",
             Email: "e.rodriguez@academic.edu",
-            Role: "Admissions Officer",
-            Dept: "Admissions & Enrollment",
-            Phone: "+1 (555) 019-2834",
-            MustResetPassword: false
+            Phone: "+1 (555) 019-2834"
         );
 
         var (tokenString, expiresInSeconds) = sut.GenerateToken(user, rememberMe: false);
@@ -46,9 +42,7 @@ public sealed class JwtTokenGeneratorTests
         jwt.Issuer.Should().Be("http://localhost:8080");
         jwt.Audiences.Should().Contain("http://localhost:4200");
 
-        jwt.Claims.Should().Contain(c => c.Type == JwtRegisteredClaimNames.Sub && c.Value == "EDU-2024-0082");
-        jwt.Claims.Should().Contain(c => c.Type == "role" && c.Value == "Admissions Officer");
-        jwt.Claims.Should().Contain(c => c.Type == "userrole" && c.Value == "Admissions Officer");
+        jwt.Claims.Should().Contain(c => c.Type == JwtRegisteredClaimNames.Sub && c.Value == "staff-aggregate-99");
         jwt.Claims.Should().Contain(c => c.Type == "email" && c.Value == "e.rodriguez@academic.edu");
     }
 
@@ -64,7 +58,7 @@ public sealed class JwtTokenGeneratorTests
 
         var sut = new JwtTokenGenerator(options);
 
-        var user = new IdentityUserRecord("staff-1", "EMP-1", "user", "User", "user@example.com", "Teacher", "Math", "123", false);
+        var user = new IdentityUserRecord("staff-1", "user", "User", "user@example.com", "123");
 
         var (_, expiresInSeconds) = sut.GenerateToken(user, rememberMe: true);
 

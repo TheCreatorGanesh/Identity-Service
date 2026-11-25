@@ -8,7 +8,7 @@ using IdentityService.Core.Models;
 namespace IdentityService.Infrastructure.Repositories;
 
 /// <summary>
-/// PostgreSQL implementation of IIdentityUserRepository querying the staff read model.
+/// PostgreSQL implementation of IIdentityUserRepository querying the users read model.
 /// </summary>
 public sealed class PostgresIdentityUserRepository : IIdentityUserRepository
 {
@@ -29,9 +29,9 @@ public sealed class PostgresIdentityUserRepository : IIdentityUserRepository
         _logger.LogInformation("Querying Identity DB for staff member with email: {Email}", emailLower);
 
         const string sql = @"
-            SELECT aggregateid, employeeid, username, name, email, role, dept, phone, 
-                   mustresetpassword, lastpasswordreset, twofactorenabled, lastlogin, lastloginip
-            FROM staff 
+            SELECT aggregateid, username, name, email, phone, 
+                   lastpasswordreset, twofactorenabled, lastlogin, lastloginip
+            FROM users 
             WHERE LOWER(email) = @Email OR LOWER(username) = @Email 
             LIMIT 1";
 
@@ -48,14 +48,10 @@ public sealed class PostgresIdentityUserRepository : IIdentityUserRepository
             {
                 return new IdentityUserRecord(
                     AggregateId: reader.GetString(reader.GetOrdinal("aggregateid")),
-                    EmployeeId: reader.GetString(reader.GetOrdinal("employeeid")),
                     Username: reader.GetString(reader.GetOrdinal("username")),
                     Name: reader.GetString(reader.GetOrdinal("name")),
                     Email: reader.GetString(reader.GetOrdinal("email")),
-                    Role: reader.GetString(reader.GetOrdinal("role")),
-                    Dept: reader.GetString(reader.GetOrdinal("dept")),
                     Phone: reader.GetString(reader.GetOrdinal("phone")),
-                    MustResetPassword: reader.GetBoolean(reader.GetOrdinal("mustresetpassword")),
                     LastPasswordReset: reader.IsDBNull(reader.GetOrdinal("lastpasswordreset")) ? null : reader.GetString(reader.GetOrdinal("lastpasswordreset")),
                     TwoFactorEnabled: reader.GetBoolean(reader.GetOrdinal("twofactorenabled")),
                     LastLogin: reader.IsDBNull(reader.GetOrdinal("lastlogin")) ? null : reader.GetDateTime(reader.GetOrdinal("lastlogin")),
@@ -76,7 +72,7 @@ public sealed class PostgresIdentityUserRepository : IIdentityUserRepository
     public async Task RecordLoginAsync(string aggregateId, DateTimeOffset loginTime, string? ipAddress, CancellationToken cancellationToken = default)
     {
         const string sql = @"
-            UPDATE staff 
+            UPDATE users 
             SET lastlogin = @LoginTime, lastloginip = @IpAddress 
             WHERE aggregateid = @AggregateId";
 
@@ -102,8 +98,8 @@ public sealed class PostgresIdentityUserRepository : IIdentityUserRepository
     public async Task UpdatePasswordResetTimestampAsync(string aggregateId, string timestampFormatted, CancellationToken cancellationToken = default)
     {
         const string sql = @"
-            UPDATE staff 
-            SET lastpasswordreset = @ResetTime, mustresetpassword = false 
+            UPDATE users 
+            SET lastpasswordreset = @ResetTime 
             WHERE aggregateid = @AggregateId";
 
         try

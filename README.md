@@ -32,12 +32,12 @@ graph TD
     end
 
     subgraph Infra ["IdentityService.Infrastructure (DB & Persistence Only)"]
-        PGRepo["PostgresIdentityUserRepository<br/>(Queries staff table by Email)"]
+        PGRepo["PostgresIdentityUserRepository<br/>(Queries users table by Email)"]
     end
 
     subgraph External ["External Services"]
         FirebaseAuth["Firebase Auth REST API<br/>(Google Identity Toolkit v1)"]
-        Postgres[("PostgreSQL DB<br/>staff table")]
+        Postgres[("PostgreSQL DB<br/>users table")]
     end
 
     Client -->|HTTP POST| Controller
@@ -75,7 +75,7 @@ graph TD
    - `LocalStubIdentityProvider` provides zero-network, local test accounts (`test@rest.com` / `Password123!`).
 
 4. **Identity Database Role Lookup & JWT Minting**:
-   - Queries the PostgreSQL `staff` table by lowercase email.
+   - Queries the PostgreSQL `users` table by lowercase email.
    - Mints ASP.NET Core JWTs containing standard and application claims: `sub`, `email`, `name`, `employeeId`, `ClaimTypes.Role`, and `"userrole"`.
 
 5. **API Versioning**:

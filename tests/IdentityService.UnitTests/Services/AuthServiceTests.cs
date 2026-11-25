@@ -32,14 +32,10 @@ public sealed class AuthServiceTests
 
         var userRecord = new IdentityUserRecord(
             AggregateId: "staff-123",
-            EmployeeId: "EMP-001",
             Username: "elena_r",
             Name: "Dr. Elena Rodriguez",
             Email: email,
-            Role: "Admissions Officer",
-            Dept: "Admissions",
-            Phone: "+1555123456",
-            MustResetPassword: false
+            Phone: "+1555123456"
         );
 
         _userRepo.GetByNormalizedEmailAsync(email.ToLowerInvariant(), Arg.Any<CancellationToken>())
@@ -60,8 +56,8 @@ public sealed class AuthServiceTests
         success.Should().BeTrue();
         data.Should().NotBeNull();
         data!.Token.Should().Be("mock.jwt.token");
-        data.User.Role.Should().Be("Admissions Officer");
-        data.User.EmployeeId.Should().Be("EMP-001");
+        data.User.Username.Should().Be("elena_r");
+        data.User.Email.Should().Be(email);
 
         await _userRepo.Received(1).RecordLoginAsync("staff-123", Arg.Any<DateTimeOffset>(), "127.0.0.1", Arg.Any<CancellationToken>());
     }
@@ -136,7 +132,7 @@ public sealed class AuthServiceTests
         _externalIdp.ConfirmPasswordResetAsync("valid-code", "NewPassword123!", Arg.Any<CancellationToken>())
             .Returns(PasswordResetResult.Success("test@rest.com"));
 
-        var user = new IdentityUserRecord("staff-1", "EMP-1", "test", "Test User", "test@rest.com", "Admin", "IT", "123", false);
+        var user = new IdentityUserRecord("staff-1", "test", "Test User", "test@rest.com", "123");
         _userRepo.GetByNormalizedEmailAsync("test@rest.com", Arg.Any<CancellationToken>())
             .Returns(user);
 
@@ -159,7 +155,7 @@ public sealed class AuthServiceTests
         _externalIdp.ChangePasswordAsync("test@rest.com", "Current123!", "New123456!", Arg.Any<CancellationToken>())
             .Returns(PasswordChangeResult.Success());
 
-        var user = new IdentityUserRecord("staff-1", "EMP-1", "test", "Test User", "test@rest.com", "Admin", "IT", "123", false);
+        var user = new IdentityUserRecord("staff-1", "test", "Test User", "test@rest.com", "123");
         _userRepo.GetByNormalizedEmailAsync("test@rest.com", Arg.Any<CancellationToken>())
             .Returns(user);
 

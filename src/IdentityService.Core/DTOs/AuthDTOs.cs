@@ -77,18 +77,14 @@ public sealed class LoginResponse
 /// </summary>
 public sealed class UserProfile
 {
-    public required string EmployeeId { get; set; }
     public required string Username { get; set; }
     public required string Name { get; set; }
     public required string Email { get; set; }
-    public required string Role { get; set; }
     public required string Phone { get; set; }
-    public required string Dept { get; set; }
     public string? LastPasswordReset { get; set; }
     public bool TwoFactorEnabled { get; set; }
     public DateTimeOffset? LastLogin { get; set; }
     public string? LastLoginIp { get; set; }
-    public bool MustResetPassword { get; set; }
 }
 
 /// <summary>
