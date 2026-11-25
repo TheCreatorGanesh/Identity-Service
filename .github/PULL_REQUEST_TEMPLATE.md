@@ -40,6 +40,7 @@ Describe the testing performed to verify changes:
 - [ ] **Manual / Local Testing**: Tested endpoints via Swagger / Scalar / Postman / curl
 
 ### Test Execution Summary
+
 <!-- Paste test results or summary if applicable (e.g., Total: 42, Passed: 42) -->
 
 ---
