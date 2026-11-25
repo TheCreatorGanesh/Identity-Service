@@ -5,14 +5,10 @@ namespace IdentityService.Core.Models;
 /// </summary>
 public sealed record IdentityUserRecord(
     string AggregateId,
-    string EmployeeId,
     string Username,
     string Name,
     string Email,
-    string Role,
-    string Dept,
     string Phone,
-    bool MustResetPassword,
     string? LastPasswordReset = null,
     bool TwoFactorEnabled = false,
     DateTimeOffset? LastLogin = null,

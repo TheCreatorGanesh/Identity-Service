@@ -67,22 +67,18 @@ public sealed class AuthService : IAuthService
             ExpiresIn = expiresInSeconds,
             User = new UserProfile
             {
-                EmployeeId = user.EmployeeId,
                 Username = user.Username,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role,
                 Phone = user.Phone,
-                Dept = user.Dept,
                 LastPasswordReset = user.LastPasswordReset,
                 TwoFactorEnabled = user.TwoFactorEnabled,
                 LastLogin = loginTime,
-                LastLoginIp = ipAddress,
-                MustResetPassword = user.MustResetPassword
+                LastLoginIp = ipAddress
             }
         };
 
-        _logger.LogInformation("Successfully authenticated user {Username} ({EmployeeId}) with role {Role}", user.Username, user.EmployeeId, user.Role);
+        _logger.LogInformation("Successfully authenticated user {Username} ({AggregateId})", user.Username, user.AggregateId);
         return (true, response, AuthFailureReason.None, null);
     }
 

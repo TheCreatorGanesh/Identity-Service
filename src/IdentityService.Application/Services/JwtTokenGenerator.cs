@@ -10,7 +10,7 @@ using IdentityService.Core.Models;
 namespace IdentityService.Application.Services;
 
 /// <summary>
-/// ASP.NET Core JWT token generator minting sub, email, ClaimTypes.Role, and userrole claims.
+/// ASP.NET Core JWT token generator minting sub and email claims.
 /// </summary>
 public sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
@@ -28,17 +28,12 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.EmployeeId),
-            new(ClaimTypes.NameIdentifier, user.EmployeeId),
+            new(JwtRegisteredClaimNames.Sub, user.AggregateId),
+            new(ClaimTypes.NameIdentifier, user.AggregateId),
             new(ClaimTypes.Name, user.Username),
-            new(ClaimTypes.Role, user.Role),
-            new("userrole", user.Role),
-            new("role", user.Role),
             new(ClaimTypes.Email, user.Email),
             new("email", user.Email),
-            new("name", user.Name),
-            new("employeeId", user.EmployeeId),
-            new("dept", user.Dept)
+            new("name", user.Name)
         };
 
         var expires = DateTime.UtcNow.AddHours(rememberMe ? 168 : 1);

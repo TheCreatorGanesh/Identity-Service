@@ -145,6 +145,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// ── Database Migrations ──────────────────────────────────────────────────────
+await app.Services.ApplyDatabaseMigrationsAsync();
+
 // ── Middleware Pipeline ───────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
