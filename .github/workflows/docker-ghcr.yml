@@ -12,8 +12,15 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ${{ vars.DOCKER_REGISTRY || 'ghcr.io' }}
+  IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME || github.repository }}
+  PR_IMAGE_NAME: ${{ vars.DOCKER_PR_IMAGE_NAME || 'identity-service' }}
+  DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH || 'src/IdentityService.API/Dockerfile' }}
+  DOCKER_CONTEXT: ${{ vars.DOCKER_CONTEXT || '.' }}
+  DOCKER_PLATFORMS: ${{ vars.DOCKER_PLATFORMS || 'linux/amd64,linux/arm64' }}
+  TRIVY_FORMAT: ${{ vars.TRIVY_FORMAT || 'sarif' }}
+  TRIVY_OUTPUT_FILE: ${{ vars.TRIVY_OUTPUT_FILE || 'trivy-results.sarif' }}
+  TRIVY_SEVERITY: ${{ vars.TRIVY_SEVERITY || 'CRITICAL,HIGH' }}
 
 permissions:
   contents: read
@@ -23,7 +30,7 @@ permissions:
 jobs:
   docker:
     name: Docker Build & Push
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout repository
@@ -59,37 +66,38 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: src/IdentityService.API/Dockerfile
+          context: ${{ env.DOCKER_CONTEXT }}
+          file: ${{ env.DOCKERFILE_PATH }}
           load: true
           push: false
-          tags: identity-service:pr-${{ github.event.pull_request.number }}
+          tags: ${{ env.PR_IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Scan PR Docker image with Trivy
+        id: trivy
         if: github.event_name == 'pull_request'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: identity-service:pr-${{ github.event.pull_request.number }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
+          image-ref: ${{ env.PR_IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
+          format: ${{ env.TRIVY_FORMAT }}
+          output: ${{ env.TRIVY_OUTPUT_FILE }}
+          severity: ${{ env.TRIVY_SEVERITY }}
           ignore-unfixed: true
 
       - name: Upload Trivy scan results to GitHub Security
-        if: github.event_name == 'pull_request' && hashFiles('trivy-results.sarif') != ''
+        if: github.event_name == 'pull_request' && steps.trivy.outcome == 'success'
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: ${{ env.TRIVY_OUTPUT_FILE }}
 
       - name: Build and push multi-arch Docker image to GHCR
         if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: src/IdentityService.API/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          context: ${{ env.DOCKER_CONTEXT }}
+          file: ${{ env.DOCKERFILE_PATH }}
+          platforms: ${{ env.DOCKER_PLATFORMS }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

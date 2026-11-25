@@ -14,6 +14,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  DOTNET_VERSION: ${{ vars.DOTNET_VERSION || '10.0.x' }}
+  SOLUTION_FILE: ${{ vars.SOLUTION_FILE || 'IdentityService.slnx' }}
+  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+  CODEQL_LANGUAGES: ${{ vars.CODEQL_LANGUAGES || 'csharp' }}
+  CODEQL_QUERIES: ${{ vars.CODEQL_QUERIES || 'security-extended' }}
+  CODEQL_CATEGORY: ${{ vars.CODEQL_CATEGORY || '/language:csharp' }}
+
 permissions:
   contents: read
   security-events: write
@@ -21,7 +29,7 @@ permissions:
 jobs:
   secret-scan:
     name: Secret Scanning (Gitleaks)
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,7 +43,7 @@ jobs:
 
   nuget-vulnerability-audit:
     name: NuGet Dependency Audit
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,17 +51,17 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore IdentityService.slnx
+        run: dotnet restore "${{ env.SOLUTION_FILE }}"
 
       - name: Check for Known Vulnerabilities (CVEs)
         run: |
           echo "### 🛡️ NuGet Dependency Vulnerability Check" >> "$GITHUB_STEP_SUMMARY"
-          AUDIT_OUTPUT=$(dotnet list IdentityService.slnx package --vulnerable --include-transitive)
+          AUDIT_OUTPUT=$(dotnet list "${{ env.SOLUTION_FILE }}" package --vulnerable --include-transitive)
           echo "$AUDIT_OUTPUT"
-          
+
           if echo "$AUDIT_OUTPUT" | grep -i "has the following vulnerable packages"; then
             echo "❌ Vulnerable NuGet packages detected!"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
@@ -67,7 +75,7 @@ jobs:
 
   codeql-analysis:
     name: CodeQL SAST Analysis
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -75,21 +83,21 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: csharp
-          queries: security-extended
+          languages: ${{ env.CODEQL_LANGUAGES }}
+          queries: ${{ env.CODEQL_QUERIES }}
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore IdentityService.slnx
+        run: dotnet restore "${{ env.SOLUTION_FILE }}"
 
       - name: Build solution for CodeQL analysis
-        run: dotnet build IdentityService.slnx --configuration Release --no-restore
+        run: dotnet build "${{ env.SOLUTION_FILE }}" --configuration "${{ env.BUILD_CONFIGURATION }}" --no-restore
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:csharp"
+          category: ${{ env.CODEQL_CATEGORY }}

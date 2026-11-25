@@ -8,6 +8,9 @@ on:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
 
+env:
+  RELEASE_DRAFTER_CONFIG: ${{ vars.RELEASE_DRAFTER_CONFIG || 'release-drafter.yml' }}
+
 permissions:
   contents: write
   pull-requests: write
@@ -15,10 +18,10 @@ permissions:
 jobs:
   update_release_draft:
     name: Update Draft Release
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
     steps:
       - uses: release-drafter/release-drafter@v6
         with:
-          config-name: release-drafter.yml
+          config-name: ${{ env.RELEASE_DRAFTER_CONFIG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

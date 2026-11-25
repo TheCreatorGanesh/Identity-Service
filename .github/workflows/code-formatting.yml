@@ -11,13 +11,19 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  DOTNET_VERSION: ${{ vars.DOTNET_VERSION || '10.0.x' }}
+  SOLUTION_FILE: ${{ vars.SOLUTION_FILE || 'IdentityService.slnx' }}
+  FORMAT_SEVERITY: ${{ vars.FORMAT_SEVERITY || 'error' }}
+  FORMAT_VERBOSITY: ${{ vars.FORMAT_VERBOSITY || 'normal' }}
+
 permissions:
   contents: read
 
 jobs:
   format-check:
     name: Code Formatting
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout repository
@@ -26,10 +32,15 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore IdentityService.slnx
+        run: dotnet restore "${{ env.SOLUTION_FILE }}"
 
       - name: Verify code formatting
-        run: dotnet format IdentityService.slnx --verify-no-changes --no-restore --severity error --verbosity normal
+        run: >
+          dotnet format "${{ env.SOLUTION_FILE }}"
+          --verify-no-changes
+          --no-restore
+          --severity "${{ env.FORMAT_SEVERITY }}"
+          --verbosity "${{ env.FORMAT_VERBOSITY }}"

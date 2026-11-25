@@ -11,6 +11,21 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  DOTNET_VERSION: ${{ vars.DOTNET_VERSION || '10.0.x' }}
+  SOLUTION_FILE: ${{ vars.SOLUTION_FILE || 'IdentityService.slnx' }}
+  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+  UNIT_TEST_PROJECT: ${{ vars.UNIT_TEST_PROJECT || 'tests/IdentityService.UnitTests/IdentityService.UnitTests.csproj' }}
+  TEST_RESULTS_DIR: ${{ vars.TEST_RESULTS_DIR || 'tests/IdentityService.UnitTests/TestResults' }}
+  COVERLET_SETTINGS: ${{ vars.COVERLET_SETTINGS || 'coverlet.runsettings' }}
+  TRX_LOG_FILE: ${{ vars.TRX_LOG_FILE || 'unit-tests.trx' }}
+  COVERAGE_FILE_NAME: ${{ vars.COVERAGE_FILE_NAME || 'coverage.cobertura.xml' }}
+  SUMMARY_SCRIPT: ${{ vars.SUMMARY_SCRIPT || '.github/scripts/generate-test-summary.js' }}
+  SUMMARY_OUTPUT_FILE: ${{ vars.SUMMARY_OUTPUT_FILE || 'test-summary.md' }}
+  PR_COMMENT_TAG: ${{ vars.PR_COMMENT_TAG || '<!-- unit-test-coverage-summary -->' }}
+  ARTIFACT_NAME: ${{ vars.UNIT_TEST_ARTIFACT_NAME || 'unit-test-results' }}
+  ARTIFACT_RETENTION_DAYS: ${{ vars.ARTIFACT_RETENTION_DAYS || 7 }}
+
 permissions:
   contents: read
   pull-requests: write
@@ -18,7 +33,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build & Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_OS || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout repository
@@ -27,27 +42,27 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore IdentityService.slnx
+        run: dotnet restore "${{ env.SOLUTION_FILE }}"
 
       - name: Build solution
-        run: dotnet build IdentityService.slnx --configuration Release --no-restore
+        run: dotnet build "${{ env.SOLUTION_FILE }}" --configuration "${{ env.BUILD_CONFIGURATION }}" --no-restore
 
       - name: Run unit tests
         run: >
-          dotnet test tests/IdentityService.UnitTests/IdentityService.UnitTests.csproj
-          --configuration Release
+          dotnet test "${{ env.UNIT_TEST_PROJECT }}"
+          --configuration "${{ env.BUILD_CONFIGURATION }}"
           --no-build
           --verbosity normal
-          --settings coverlet.runsettings
+          --settings "${{ env.COVERLET_SETTINGS }}"
           --collect:"XPlat Code Coverage"
-          --logger "trx;LogFileName=unit-tests.trx"
+          --logger "trx;LogFileName=${{ env.TRX_LOG_FILE }}"
 
       - name: Generate Test & Coverage Summary
         if: always()
-        run: node .github/scripts/generate-test-summary.js tests/IdentityService.UnitTests/TestResults
+        run: node "${{ env.SUMMARY_SCRIPT }}" "${{ env.TEST_RESULTS_DIR }}"
 
       - name: Publish PR Comment
         if: always() && github.event_name == 'pull_request'
@@ -55,13 +70,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          if [ -f test-summary.md ]; then
-            COMMENT_TAG="<!-- unit-test-coverage-summary -->"
-            BODY="${COMMENT_TAG}"$'\n\n'"$(cat test-summary.md)"
-            
+          if [ -f "$SUMMARY_OUTPUT_FILE" ]; then
+            BODY="${PR_COMMENT_TAG}"$'\n\n'"$(cat "$SUMMARY_OUTPUT_FILE")"
+
             EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
-              --jq ".[] | select(.body | contains(\"${COMMENT_TAG}\")) | .id" | head -n 1)
-            
+              --jq ".[] | select(.body | contains(\"${PR_COMMENT_TAG}\")) | .id" | head -n 1)
+
             if [ -n "$EXISTING_COMMENT_ID" ]; then
               echo "Updating existing PR comment: $EXISTING_COMMENT_ID"
               gh api --method PATCH "repos/${{ github.repository }}/issues/comments/${EXISTING_COMMENT_ID}" \
@@ -76,9 +90,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: unit-test-results
+          name: ${{ env.ARTIFACT_NAME }}
           path: |
-            tests/IdentityService.UnitTests/TestResults/**/*.trx
-            tests/IdentityService.UnitTests/TestResults/**/coverage.cobertura.xml
+            ${{ env.TEST_RESULTS_DIR }}/**/*.trx
+            ${{ env.TEST_RESULTS_DIR }}/**/${{ env.COVERAGE_FILE_NAME }}
           if-no-files-found: ignore
-          retention-days: 7
+          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
