@@ -1,0 +1,77 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+no-changes-template: '- No notable changes since the last release.'
+
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+      - 'feat'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+      - 'fix'
+  - title: '♻️ Refactoring & Performance'
+    labels:
+      - 'refactor'
+      - 'perf'
+  - title: '🔧 CI/CD & Tooling'
+    labels:
+      - 'ci'
+      - 'chore'
+      - 'build'
+  - title: '📚 Documentation'
+    labels:
+      - 'docs'
+      - 'documentation'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+  minor:
+    labels:
+      - 'feature'
+      - 'enhancement'
+      - 'feat'
+  patch:
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'perf'
+      - 'refactor'
+      - 'ci'
+      - 'docs'
+      - 'chore'
+  default: patch
+
+autolabeler:
+  - label: 'major'
+    title:
+      - '/!:/'
+      - '/BREAKING CHANGE/i'
+  - label: 'feature'
+    title:
+      - '/^feat(\(.+\))?:/i'
+  - label: 'bug'
+    title:
+      - '/^fix(\(.+\))?:/i'
+  - label: 'refactor'
+    title:
+      - '/^(refactor|perf)(\(.+\))?:/i'
+  - label: 'ci'
+    title:
+      - '/^(ci|chore|build)(\(.+\))?:/i'
+  - label: 'docs'
+    title:
+      - '/^docs(\(.+\))?:/i'
+
+template: |
+  ## 📋 Release Summary
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
